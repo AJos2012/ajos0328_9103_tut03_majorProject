@@ -15,6 +15,9 @@ let patterns = [];
 // Initial no. of rings for dots pattern
 let numRings = 1; 
 
+// To control continuous movement of circles after spacebar is pressed
+let moveAway = false; 
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB);  // Set colour mode to HSB
@@ -54,16 +57,36 @@ function setup() {
 function draw() {
   background('teal');
 
-  /* Update numRings based on mouse position 
+  if (!moveAway) {
+  /* Update numRings based on mouse position when not moving away
   The pattern will have 1 ring when mouse is at the top most part of the screen
   The pattern will have 20 rings when mouse is at the bottom most part of the screen*/
   numRings = map(mouseY, 0, height, 1, 20);
   numRings = constrain(numRings, 1, 20);
 
-  // Draw all patterns with current positions and numRings
+} else {
+  // Move only patterns near the mouse position away
+   let proximityRadius = 240;
+
+  
   for (let pattern of patterns) {
-    pattern.draw();
-  }
+    let distanceToMouse = dist(pattern.x, pattern.y, mouseX, mouseY);
+      if (distanceToMouse < proximityRadius) {
+      let dx = pattern.x - mouseX;
+      let dy = pattern.y - mouseY;
+      let moveAmount = 50;
+      
+      // Easing effect: gradually move away
+      let easeFactor = 0.5; // Controls the speed of the easing
+      pattern.x += (dx / distanceToMouse) * moveAmount * easeFactor;
+      pattern.y += (dy / distanceToMouse) * moveAmount * easeFactor;
+     }
+   }
+ }
+ // Draw all patterns with current positions and numRings
+ for (let pattern of patterns) {
+  pattern.draw();
+ }
 }
 
 function windowResized() {
@@ -79,6 +102,18 @@ function mousePressed() {
       pattern.togglePattern();
     }
   }
+}
+
+// Toggle between the moveAway state with the spacebar
+function keyPressed() {
+  if (key === ' ') {
+    toggleMoveAway(!moveAway); 
+  }
+}
+
+// Function to toggle the moveAway state of the circles from the mouse
+function toggleMoveAway(state) {
+  moveAway = state;
 }
 
 class CirclePattern {
