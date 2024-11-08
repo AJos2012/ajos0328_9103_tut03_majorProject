@@ -12,6 +12,10 @@ The array helps to manage the circles to which interaction can be added
 Also helps in managing the circle patterns when window is resized*/
 let patterns = []; 
 
+// Variables to move the circle patterns horizontally and vertically
+let offsetX = 0; 
+let offsetY = 0; 
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB);  // Set colour mode to HSB
@@ -54,6 +58,26 @@ function windowResized() {
   setup(); // Redraw circles when window is resized
 }
 
+  /* This function is to toggle between zigzag or dot pattern on mouse click */
+function mousePressed() {
+   for (let pattern of patterns) {
+    let d = dist(mouseX, mouseY, pattern.x, pattern.y);
+    if (d < mainRadius) { // Checks if mouse is inside the circle bounds
+      pattern.togglePattern();
+    }
+  }
+  redrawPatterns();
+}
+
+function redrawPatterns() {
+  // Clear the canvas and redraw all the patterns with current offsets
+  background('teal');
+  for (let pattern of patterns) {
+    pattern.x += offsetX; 
+    pattern.y += offsetY; 
+    pattern.draw();
+  }
+}
 
 class CirclePattern {
   constructor(x, y, mainRadius, hue, saturation, brightness, isZigzag) {
@@ -79,6 +103,12 @@ class CirclePattern {
   color(4, 57, 81)
     ]; 
     return shuffle(predefinedColors).slice(0, 3); // Randomly select three colors
+  }
+  
+  // Toggle between zigzag and dots pattern
+  togglePattern() {
+    this.isZigzag = !this.isZigzag;
+    this.draw(); 
   }
 
     // Draws concentric rings of dots
