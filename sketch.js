@@ -12,9 +12,8 @@ The array helps to manage the circles to which interaction can be added
 Also helps in managing the circle patterns when window is resized*/
 let patterns = []; 
 
-// Variables to move the circle patterns horizontally and vertically
-let offsetX = 0; 
-let offsetY = 0; 
+// Initial no. of rings for dots pattern
+let numRings = 1; 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -52,9 +51,23 @@ function setup() {
   }
 }
 
+function draw() {
+  background('teal');
+
+  /* Update numRings based on mouse position 
+  The pattern will have 1 ring when mouse is at the top most part of the screen
+  The pattern will have 20 rings when mouse is at the bottom most part of the screen*/
+  numRings = map(mouseY, 0, height, 1, 20);
+  numRings = constrain(numRings, 1, 20);
+
+  // Draw all patterns with current positions and numRings
+  for (let pattern of patterns) {
+    pattern.draw();
+  }
+}
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  background('teal');
   setup(); // Redraw circles when window is resized
 }
 
@@ -65,17 +78,6 @@ function mousePressed() {
     if (d < mainRadius) { // Checks if mouse is inside the circle bounds
       pattern.togglePattern();
     }
-  }
-  redrawPatterns();
-}
-
-function redrawPatterns() {
-  // Clear the canvas and redraw all the patterns with current offsets
-  background('teal');
-  for (let pattern of patterns) {
-    pattern.x += offsetX; 
-    pattern.y += offsetY; 
-    pattern.draw();
   }
 }
 
@@ -108,12 +110,10 @@ class CirclePattern {
   // Toggle between zigzag and dots pattern
   togglePattern() {
     this.isZigzag = !this.isZigzag;
-    this.draw(); 
   }
 
     // Draws concentric rings of dots
   drawDotsInCircle() {
-    let numRings = 15; // Number of concentric rings of dots
     let dotSize = 5; // Size of dots
 
     // Draw concentric rings of dots
